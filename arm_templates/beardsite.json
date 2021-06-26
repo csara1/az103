@@ -1,54 +1,16 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.2",
-    "parameters": {
-        "virtualMachines_backendSERVER_name": {
-            "defaultValue": "backendSERVER",
-            "type": "String"
-        },
-        "virtualMachines_frontendSERVER_name": {
-            "defaultValue": "frontendSERVER",
-            "type": "String"
-        },
-        "virtualNetworks_BeardSite_vnet_name": {
-            "defaultValue": "BeardSite-vnet",
-            "type": "String"
-        },
-        "networkInterfaces_backendserver889_name": {
-            "defaultValue": "backendserver889",
-            "type": "String"
-        },
-        "publicIPAddresses_backendSERVER_ip_name": {
-            "defaultValue": "backendSERVER-ip",
-            "type": "String"
-        },
-        "networkInterfaces_frontendserver859_name": {
-            "defaultValue": "frontendserver859",
-            "type": "String"
-        },
-        "publicIPAddresses_frontendSERVER_ip_name": {
-            "defaultValue": "frontendSERVER-ip",
-            "type": "String"
-        },
-        "networkSecurityGroups_backendSERVER_nsg_name": {
-            "defaultValue": "backendSERVER-nsg",
-            "type": "String"
-        },
-        "networkSecurityGroups_frontendSERVER_nsg_name": {
-            "defaultValue": "frontendSERVER-nsg",
-            "type": "String"
-        }
-    },
+    "contentVersion": "1.0.1.2",
     "variables": {
-        "backendserver": "backend2",
-        "nicname": "backend2nic",
-        "backendpip": "backendpip"
+        "backendSERVER_name": "backendSERVER",
+        "frontendSERVER_name": "frontendSERVER",
+        "vnet_name": "BeardSite-VNet"
     },
     "resources": [
         {
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2019-07-01",
-            "name": "[parameters('networkSecurityGroups_backendSERVER_nsg_name')]",
+            "name": "[concat(variables('backendSERVER_name'), '-NSG')]",
             "location": "[resourceGroup().location]",
             "tags": {
                 "BeardSite": "[resourceGroup().location]"
@@ -95,7 +57,7 @@
         {
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2019-07-01",
-            "name": "[parameters('networkSecurityGroups_frontendSERVER_nsg_name')]",
+            "name": "[concat(variables('frontendSERVER_name'), '-NSG')]",
             "location": "[resourceGroup().location]",
             "tags": {
                 "BeardSite": "[resourceGroup().location]"
@@ -176,7 +138,7 @@
         {
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2019-07-01",
-            "name": "[parameters('publicIPAddresses_backendSERVER_ip_name')]",
+            "name": "[concat(variables('backendSERVER_name'), '1-IP')]",
             "location": "[resourceGroup().location]",
             "tags": {
                 "BeardSite": "[resourceGroup().location]"
@@ -186,7 +148,6 @@
                 "tier": "Regional"
             },
             "properties": {
-                "ipAddress": "13.84.179.180",
                 "publicIPAddressVersion": "IPv4",
                 "publicIPAllocationMethod": "Dynamic",
                 "idleTimeoutInMinutes": 4,
@@ -196,7 +157,7 @@
         {
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2019-07-01",
-            "name": "[variables('backendpip')]",
+            "name": "[concat(variables('backendSERVER_name'), '2-IP')]",
             "location": "[resourceGroup().location]",
             "tags": {
                 "BeardSite": "[resourceGroup().location]"
@@ -206,7 +167,6 @@
                 "tier": "Regional"
             },
             "properties": {
-                "ipAddress": "",
                 "publicIPAddressVersion": "IPv4",
                 "publicIPAllocationMethod": "Dynamic",
                 "idleTimeoutInMinutes": 4,
@@ -216,7 +176,7 @@
         {
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2019-07-01",
-            "name": "[parameters('publicIPAddresses_frontendSERVER_ip_name')]",
+            "name": "[concat(variables('frontendSERVER_name'), '-IP')]",
             "location": "[resourceGroup().location]",
             "tags": {
                 "BeardSite": "[resourceGroup().location]"
@@ -236,7 +196,7 @@
         {
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2019-07-01",
-            "name": "[parameters('virtualNetworks_BeardSite_vnet_name')]",
+            "name": "[variables('vnet_name')]",
             "location": "[resourceGroup().location]",
             "tags": {
                 "BeardSite": "[resourceGroup().location]"
@@ -266,10 +226,10 @@
         {
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2019-03-01",
-            "name": "[parameters('virtualMachines_backendSERVER_name')]",
+            "name": "[concat(variables('backendSERVER_name'), '1')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_backendserver889_name'))]"
+                "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('backendSERVER_name'), '1-NIC'))]"
             ],
             "tags": {
                 "BeardSite": "[resourceGroup().location]"
@@ -287,7 +247,7 @@
                     },
                     "osDisk": {
                         "osType": "Windows",
-                        "name": "[concat(parameters('virtualMachines_backendSERVER_name'), '_OsDisk_1_ef3ab3c577ea4dd5827852baae056008')]",
+                        "name": "[concat(variables('backendSERVER_name'), '1-OSDisk')]",
                         "createOption": "FromImage",
                         "caching": "ReadWrite",
                         "managedDisk": {
@@ -298,7 +258,7 @@
                     "dataDisks": []
                 },
                 "osProfile": {
-                    "computerName": "[parameters('virtualMachines_backendSERVER_name')]",
+                    "computerName": "[concat(variables('backendSERVER_name'), '1')]",
                     "adminUsername": "beardmin",
                     "adminPassword": "mM%Vc!562yTj",
                     "windowsConfiguration": {
@@ -311,7 +271,7 @@
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_backendserver889_name'))]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('backendSERVER_name'), '1-NIC'))]"
                         }
                     ]
                 }
@@ -320,10 +280,10 @@
         {
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2019-03-01",
-            "name": "[variables('backendserver')]",
+            "name": "[concat(variables('backendSERVER_name'), '2')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkInterfaces', variables('nicname'))]"
+                "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('backendSERVER_name'), '2-NIC'))]"
             ],
             "tags": {
                 "BeardSite": "[resourceGroup().location]"
@@ -341,7 +301,7 @@
                     },
                     "osDisk": {
                         "osType": "Windows",
-                        "name": "[concat(variables('backendserver'), '_OsDisk_1_ef3ab3c577ea4dd5827852baae056008')]",
+                        "name": "[concat(variables('backendSERVER_name'), '2-OSDisk')]",
                         "createOption": "FromImage",
                         "caching": "ReadWrite",
                         "managedDisk": {
@@ -352,7 +312,7 @@
                     "dataDisks": []
                 },
                 "osProfile": {
-                    "computerName": "[variables('backendserver')]",
+                    "computerName": "[concat(variables('backendSERVER_name'), '2')]",
                     "adminUsername": "beardmin",
                     "adminPassword": "mM%Vc!562yTj",
                     "windowsConfiguration": {
@@ -365,7 +325,7 @@
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicname'))]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('backendSERVER_name'), '2-NIC'))]"
                         }
                     ]
                 }
@@ -374,10 +334,10 @@
         {
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2019-03-01",
-            "name": "[parameters('virtualMachines_frontendSERVER_name')]",
+            "name": "[variables('frontendSERVER_name')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_frontendserver859_name'))]"
+                "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('frontendSERVER_name'), '-NIC'))]"
             ],
             "tags": {
                 "BeardSite": "[resourceGroup().location]"
@@ -395,7 +355,7 @@
                     },
                     "osDisk": {
                         "osType": "Linux",
-                        "name": "[concat(parameters('virtualMachines_frontendSERVER_name'), '_OsDisk_1_c6d33243208549028193e578673837b9')]",
+                        "name": "[concat(variables('frontendSERVER_name'), '-OSDisk')]",
                         "createOption": "FromImage",
                         "caching": "ReadWrite",
                         "managedDisk": {
@@ -406,7 +366,7 @@
                     "dataDisks": []
                 },
                 "osProfile": {
-                    "computerName": "[parameters('virtualMachines_frontendSERVER_name')]",
+                    "computerName": "[variables('frontendSERVER_name')]",
                     "adminUsername": "beardmin",
                     "adminPassword": "mM%Vc!562yTj",
                     "linuxConfiguration": {
@@ -419,7 +379,7 @@
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_frontendserver859_name'))]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('frontendSERVER_name'), '-NIC'))]"
                         }
                     ]
                 }
@@ -428,9 +388,9 @@
         {
             "type": "Microsoft.Network/networkSecurityGroups/securityRules",
             "apiVersion": "2019-07-01",
-            "name": "[concat(parameters('networkSecurityGroups_frontendSERVER_nsg_name'), '/HTTP')]",
+            "name": "[concat(variables('frontendSERVER_name'), '-NSG/HTTP')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_frontendSERVER_nsg_name'))]"
+                "[resourceId('Microsoft.Network/networkSecurityGroups', concat(variables('frontendSERVER_name'), '-NSG'))]"
             ],
             "properties": {
                 "protocol": "TCP",
@@ -450,9 +410,9 @@
         {
             "type": "Microsoft.Network/networkSecurityGroups/securityRules",
             "apiVersion": "2019-07-01",
-            "name": "[concat(parameters('networkSecurityGroups_frontendSERVER_nsg_name'), '/HTTPS')]",
+            "name": "[concat(variables('frontendSERVER_name'), '-NSG/HTTPS')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_frontendSERVER_nsg_name'))]"
+                "[resourceId('Microsoft.Network/networkSecurityGroups', concat(variables('frontendSERVER_name'), '-NSG'))]"
             ],
             "properties": {
                 "protocol": "TCP",
@@ -472,9 +432,9 @@
         {
             "type": "Microsoft.Network/networkSecurityGroups/securityRules",
             "apiVersion": "2019-07-01",
-            "name": "[concat(parameters('networkSecurityGroups_backendSERVER_nsg_name'), '/RDP')]",
+            "name": "[concat(variables('backendSERVER_name'), '-NSG/RDP')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_backendSERVER_nsg_name'))]"
+                "[resourceId('Microsoft.Network/networkSecurityGroups', concat(variables('backendSERVER_name'), '-NSG'))]"
             ],
             "properties": {
                 "protocol": "TCP",
@@ -494,9 +454,9 @@
         {
             "type": "Microsoft.Network/networkSecurityGroups/securityRules",
             "apiVersion": "2019-07-01",
-            "name": "[concat(parameters('networkSecurityGroups_frontendSERVER_nsg_name'), '/SSH')]",
+            "name": "[concat(variables('frontendSERVER_name'), '-NSG/SSH')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_frontendSERVER_nsg_name'))]"
+                "[resourceId('Microsoft.Network/networkSecurityGroups', concat(variables('frontendSERVER_name'), '-NSG'))]"
             ],
             "properties": {
                 "protocol": "TCP",
@@ -516,9 +476,9 @@
         {
             "type": "Microsoft.Network/virtualNetworks/subnets",
             "apiVersion": "2019-07-01",
-            "name": "[concat(parameters('virtualNetworks_BeardSite_vnet_name'), '/default')]",
+            "name": "[concat(variables('vnet_name'), '/default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_BeardSite_vnet_name'))]"
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet_name'))]"
             ],
             "properties": {
                 "addressPrefix": "10.0.4.0/24",
@@ -530,12 +490,12 @@
         {
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2019-07-01",
-            "name": "[parameters('networkInterfaces_backendserver889_name')]",
+            "name": "[concat(variables('backendSERVER_name'), '1-NIC')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_backendSERVER_ip_name'))]",
-                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_BeardSite_vnet_name'), 'default')]",
-                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_backendSERVER_nsg_name'))]"
+                "[resourceId('Microsoft.Network/publicIPAddresses', concat(variables('backendSERVER_name'), '1-IP'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet_name'), 'default')]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', concat(variables('backendSERVER_name'), '-NSG'))]"
             ],
             "tags": {
                 "BeardSite": "[resourceGroup().location]"
@@ -545,13 +505,12 @@
                     {
                         "name": "ipconfig1",
                         "properties": {
-                            "privateIPAddress": "10.0.4.4",
                             "privateIPAllocationMethod": "Dynamic",
                             "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_backendSERVER_ip_name'))]"
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat(variables('backendSERVER_name'), '1-IP'))]"
                             },
                             "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_BeardSite_vnet_name'), 'default')]"
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet_name'), 'default')]"
                             },
                             "primary": true,
                             "privateIPAddressVersion": "IPv4"
@@ -564,19 +523,19 @@
                 "enableAcceleratedNetworking": false,
                 "enableIPForwarding": false,
                 "networkSecurityGroup": {
-                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_backendSERVER_nsg_name'))]"
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat(variables('backendSERVER_name'), '-NSG'))]"
                 }
             }
         },
         {
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2019-07-01",
-            "name": "[variables('nicname')]",
+            "name": "[concat(variables('backendSERVER_name'), '2-NIC')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', variables('backendpip'))]",
-                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_BeardSite_vnet_name'), 'default')]",
-                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_backendSERVER_nsg_name'))]"
+                "[resourceId('Microsoft.Network/publicIPAddresses', concat(variables('backendSERVER_name'), '2-IP'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet_name'), 'default')]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', concat(variables('backendSERVER_name'), '-NSG'))]"
             ],
             "tags": {
                 "BeardSite": "[resourceGroup().location]"
@@ -586,13 +545,12 @@
                     {
                         "name": "ipconfig1",
                         "properties": {
-                            "privateIPAddress": "10.0.4.4",
                             "privateIPAllocationMethod": "Dynamic",
                             "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('backendpip'))]"
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat(variables('backendSERVER_name'), '2-IP'))]"
                             },
                             "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_BeardSite_vnet_name'), 'default')]"
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet_name'), 'default')]"
                             },
                             "primary": true,
                             "privateIPAddressVersion": "IPv4"
@@ -605,19 +563,19 @@
                 "enableAcceleratedNetworking": false,
                 "enableIPForwarding": false,
                 "networkSecurityGroup": {
-                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_backendSERVER_nsg_name'))]"
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat(variables('backendSERVER_name'), '-NSG'))]"
                 }
             }
         },
         {
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2019-07-01",
-            "name": "[parameters('networkInterfaces_frontendserver859_name')]",
+            "name": "[concat(variables('frontendSERVER_name'), '-NIC')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_frontendSERVER_ip_name'))]",
-                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_BeardSite_vnet_name'), 'default')]",
-                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_frontendSERVER_nsg_name'))]"
+                "[resourceId('Microsoft.Network/publicIPAddresses', concat(variables('frontendSERVER_name'), '-IP'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet_name'), 'default')]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', concat(variables('frontendSERVER_name'), '-NSG'))]"
             ],
             "tags": {
                 "BeardSite": "[resourceGroup().location]"
@@ -630,10 +588,10 @@
                             "privateIPAddress": "10.0.4.5",
                             "privateIPAllocationMethod": "Dynamic",
                             "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_frontendSERVER_ip_name'))]"
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat(variables('frontendSERVER_name'), '-IP'))]"
                             },
                             "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_BeardSite_vnet_name'), 'default')]"
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet_name'), 'default')]"
                             },
                             "primary": true,
                             "privateIPAddressVersion": "IPv4"
@@ -646,7 +604,7 @@
                 "enableAcceleratedNetworking": false,
                 "enableIPForwarding": false,
                 "networkSecurityGroup": {
-                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_frontendSERVER_nsg_name'))]"
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat(variables('frontendSERVER_name'), '-NSG'))]"
                 }
             }
         }
